@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>用户注册</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="../css/register.css">
+
+    <!-- Vue.js -->
+    <script src="../js/vue.js"></script>
+    <!-- axios.js -->
+    <script src="../js/axios.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- 注册表格 -->
+    <div class="container" id="app">
+        <div class="wrapper">
+            <div class="reg-font">注册</div>
+            <!-- 管理表格@submit="submit" -->
+            <form action="/register/save" method="POST" class="input-section">
+                <!-- 用户账号 -->
+                <div class="form-group">
+                    <label class="set-label">用户账号</label>
+                    <input type="text" @keyup="checkAcc" class="form-control set-input" name="uid" v-model="uid"
+                        placeholder="必填(不超过10位)" maxlength="10" required>
+                    <label style="color: red" v-text="accMsg"></label>
+                </div>
+                <!-- 用户密码 -->
+                <div class="form-group">
+                    <label class="set-label">密码</label>
+                    <input v-model="user.pwd1" @keyup="checkPwd" type="password" class="form-control set-input"
+                        name="uPwd" placeholder="必填(最多16位)" maxlength="16" required>
+                </div>
+                <!-- 确认密码 -->
+                <div class=" form-group">
+                    <label class="set-label">确认密码</label>
+                    <input v-model="user.pwd2" @keyup="checkPwd" type="password" class="form-control set-input"
+                        name="checkPwd" placeholder="必填" maxlength="16" required>
+                    <label style="color: red" v-if="!isSame">密码不一致</label>
+                </div>
+                <!-- 用户名 -->
+                <div class="form-group">
+                    <label class="set-label">用户名</label>
+                    <input type="text" @keyup="checkName" class="form-control set-input" name="uname" v-model="uname"
+                        placeholder="必填" maxlength="20" required>
+                    <label style="color: red" v-text="nameMsg"></label>
+                </div>
+                <!-- 用户邮箱 -->
+                <div class="form-group">
+                    <label class="set-label">用户邮箱</label>
+                    <input type="email" class="form-control set-input" name="email" v-model="email" placeholder="选填">
+                </div>
+                <!-- 用户电话 -->
+                <div class="form-group">
+                    <label class="set-label">用户电话</label>
+                    <input type="text" class="form-control set-input" name="phonenumber" v-model="phonenumber"
+                        placeholder="选填" pattern="\d{0,11}">
+                </div>
+
+                <!-- 密码校验正确 -->
+                <button v-if="noAcc && noName && isSame" type="submit"
+                    class="btn btn-block btn-primary set-submit">Submit</button>
+                <!-- 密码校验不正确 -->
+                <button v-else disabled type="submit" class="btn btn-block btn-primary set-submit">Submit</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                user: {
+                    // 新建密码
+                    pwd1: '',
+                    // 确认密码
+                    pwd2: '',
+                },
+                //校验密码,true为相同
+                isSame: true,
+                // 账号未被注册
+                noAcc:true,
+                // 用户名未被使用
+                noName:true,
+                uid: '',
+                uname: '',
+                email: '',
+                phonenumber: '',
+
+                // 名字已存在消息
+                nameMsg:'',
+                // 账号已存在消息
+                accMsg:''
+            },
+            methods: {
+                // 检验再次输入密码
+                checkPwd: function () {
+                    if (this.user.pwd1 === this.user.pwd2) {
+                        //校验密码正确，可以提交
+                        this.isSame = true;
+                    } else {
+                        this.isSame = false;
+                    }
+                },
+
+                // 检验注册用户名是否重复，true为用户名已存在
+                checkName: function () {
+                    axios.get(`/checkUserName`, {
+                        params: { 'uname': this.uname }
+                    })
+                        .then(res => {
+                            if (res.data === true) {
+                                // 用户名存在
+                                this.noName = false;
+                                this.nameMsg='用户名已存在';
+                            } else {
+                                this.noName = true;
+                                this.nameMsg='';
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        })
+                },
+
+                // 检查注册用户账号是否重复,true为账号已注册
+                checkAcc: function () {
+                    axios.get(`/checkUserAcc`, { params: { 'uid': this.uid } }
+                    )
+                        .then(res => {
+                            if (res.data === true) {
+                                // 账号已被注册
+                                this.noAcc = false;
+                                // 弹出已注册标签
+                                this.accMsg='账号已被注册';
+                            } else {
+                                this.noAcc = true;
+                                this.accMsg='';
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        })
+                },
+               
+                // 注册提交
+                submit: function () {
+                    axios.post(`/register/save`,
+                        { uid: this.uid, password: this.user.pwd2, uname: this.uname, email: this.email, phonenumber: this.phonenumber })
+                        .then(res => {
+                            console.log(res.data);
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        })
+                }
+
+            },
+        })
+    </script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

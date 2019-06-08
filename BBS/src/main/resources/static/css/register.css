@@ -1,0 +1,42 @@
+/* 管理整体布局 */
+.wrapper {
+    border: 1px solid #d6d6d6;
+    border-radius: 4px;
+    background: #fff;
+    overflow: hidden;
+    width: 600px;
+    margin: 10px auto;
+}
+
+/* "注册"字体 */
+.reg-font {
+    font-size: 24px;
+    margin: 10px auto;
+    width: 58px;
+}
+
+/* 管理输入表格 */
+.input-section {
+    width: 450px;
+    padding-right: 0px;
+    position: relative;
+    margin: 10px auto;
+    margin-right: 0px;
+}
+
+/* 设置输入框 */
+.set-input {
+    display: inline;
+    width: 180px;
+}
+
+/* 设置输入框前文本 */
+.set-label {
+    width: 64px;
+    text-align: right;
+}
+
+.set-submit{
+    width: 200px;
+    margin: 0px 50px auto;
+}
